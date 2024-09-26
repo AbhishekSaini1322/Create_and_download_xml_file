@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      .recommand-div {
+        display: none;
+      }
+      .category-div {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <label for="optionSelect">Choose an option:</label> -->
+    <select id="optionSelect">
+      <option value="">-- Select an option --</option>
+      <option value="Kii-navigation">navigation</option>
+      <option value="Kii-hospitality">hospitality</option>
+    </select>
+
+    <div>
+      <button id="btn-1">Recommand</button>
+      <button id="btn-2">Category</button>
+    </div>
+
+    <br /><br />
+    <div id="textAreas">
+      <div class="category-div">
+        <label for="textArea1">Category ID</label><br />
+        <textarea id="textArea1" class="cateory1"></textarea>
+        <br /><br />
+        <label for="textArea2">Product Id</label><br />
+        <textarea id="textArea2" class="cateory1"></textarea>
+      </div>
+
+      <div class="recommand-div">
+        <label for="textArea1">Source Id</label><br />
+        <textarea id="textArea1" class="target1"></textarea>
+        <br /><br />
+        <label for="textArea2">Target Id</label><br />
+        <textarea id="textArea2" class="target1"></textarea>
+      </div>
+    </div>
+
+    <button id="download">Download</button>
+
+    <script>
+      $(document).ready(function () {
+        $("#btn-1").click(function () {
+          $(".recommand-div").show();
+          $(".category-div").hide();
+        });
+        $("#btn-2").click(function () {
+          $(".category-div").show();
+          $(".recommand-div").hide();
+        });
+
+        $("#download").click(function () {
+          var sourceId = $(".target1").eq(0).val()
+            ? $(".target1").eq(0).val().split(",")
+            : null;
+          var targetId = $(".target1").eq(1).val()
+            ? $(".target1").eq(1).val().split(",")
+            : null;
+
+          var categoryId = $(".cateory1").eq(0).val()
+            ? $(".cateory1").eq(0).val().split(",")
+            : null;
+          var productId = $(".cateory1").eq(1).val()
+            ? $(".cateory1").eq(1).val().split(",")
+            : null;
+
+            var navname = $('#optionSelect').val()
+
+          let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+          xmlContent += `<catalog xmlns="http://www.demandware.com/xml/impex/catalog/2006-10-31" catalog-id=${navname}>\n`;
+
+          if (categoryId && productId) {
+            categoryId.forEach((category) => {
+              productId.forEach((product) => {
+                xmlContent += `<category-assignment category-id="${category.trim()}" product-id="${product.trim()}"/>\n`;
+              });
+            });
+          }
+          if (sourceId && targetId) {
+            sourceId.forEach((source) => {
+              targetId.forEach((target) => {
+                xmlContent += `<recommendation source-id="${source.trim()}" source-type="product" target-id="${target.trim()}" type="1"/>\n`;
+              });
+            });
+          }
+          xmlContent += `</catalog>`;
+
+          console.log(xmlContent);
+          const link = document.createElement("a");
+          $("body").append(link);
+          const file = new Blob([xmlContent], { type: 'text/plain' });
+          link.href = URL.createObjectURL(file);
+          link.download = "sample.xml";
+          link.click();
+          URL.revokeObjectURL(link.href);
+        });
+    });
+    </script>
+  </body>
+</html>
+
+
+<!--   const downloadFile = (content) => {
+       const link = document.createElement("a");
+       const file = new Blob([content], { type: "text/xml" });
+       link.href = URL.createObjectURL(file);
+       link.download = "catalog.xml";
+       link.click();
+       URL.revokeObjectURL(link.href);
+       };
+
+       downloadFile(xmlContent); -->
